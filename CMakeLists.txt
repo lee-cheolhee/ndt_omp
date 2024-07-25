@@ -29,7 +29,6 @@ if (OPENMP_FOUND)
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
 
-if($ENV{ROS_VERSION} EQUAL 1)
 # ROS1
 find_package(catkin REQUIRED COMPONENTS
   roscpp
@@ -85,46 +84,3 @@ install(
 # install headers
 install(DIRECTORY include/pclomp
         DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION})
-else()
-
-# ROS2
-find_package(ament_cmake_auto REQUIRED)
-ament_auto_find_build_dependencies()
-
-###########
-## Build ##
-###########
-include_directories(include)
-include_directories(
-  ${catkin_INCLUDE_DIRS}
-)
-
-add_library(ndt_omp
-  SHARED
-  src/pclomp/voxel_grid_covariance_omp.cpp
-  src/pclomp/ndt_omp.cpp
-  src/pclomp/gicp_omp.cpp
-)
-
-ament_export_targets(ndt_omp HAS_LIBRARY_TARGET)
-
-target_link_libraries(ndt_omp ${PCL_LIBRARIES})
-
-if(OpenMP_CXX_FOUND)
-  target_link_libraries(ndt_omp OpenMP::OpenMP_CXX)
-else()
-  message(WARNING "OpenMP not found")
-endif()
-
-install(
-  TARGETS
-    ndt_omp
-  EXPORT ndt_omp
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib
-  RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
-)
-
-ament_auto_package()
-endif()
